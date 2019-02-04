@@ -14,7 +14,7 @@ Json
 
 # Running the app from CommanLine
 Clone this repository:
-    $ git clone https://github.com/
+    $ git clone https://github.com/alkagtm/ripple.git
 Run "mvn clean package" to create the trustline-app-0.0.1-SNAPSHOT.jar.
 
 Open two Terminals
