@@ -8,6 +8,7 @@ TrustLine keep track of debt between two parties
 
 Client PostMan 
 
+URL:-http:loalhost:XXXX/trustline/send (POST)
 RequestObject Json
  {
    "receiver":"XYZ",
@@ -30,12 +31,13 @@ In Each Terminal execute the following command
 In Terminal1 (Server1)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8080
      
-In Terminal1 (Server2)
+In Terminal2 (Server2)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8081
 
 Following message will be Displayed on Each Terminal 
 
 Welcome to the Trustline
+
 Trustline balance is: 0
 
 
