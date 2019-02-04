@@ -26,6 +26,7 @@ In Terminal1 (Server2)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8081
 
 Following message will be Displayed on Each Terminal
+
 Welcome to the Trustline
 Trustline balance is: 0
 
