@@ -50,9 +50,8 @@ public class TrustLineServiceImpl implements TrustLineService {
 			updateSendersBalanceSheet(transferFunds);
 
 			log.info("You sent " + transferFunds.amount);
-			synchronized (this) {
-				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-			}
+			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
+		
 
 			int targetPort = (localport == reciever1port) ? reciever2port : reciever1port;
 			UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
@@ -75,9 +74,7 @@ public class TrustLineServiceImpl implements TrustLineService {
 			if (transferFunds != null) {
 				updateReceiversBalanceSheet(transferFunds);
 				log.info("You were paid " + transferFunds.amount);
-				synchronized (this) {
-					log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-				}
+				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
 
 			}
 		} catch (Exception ex) {
@@ -91,8 +88,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 	private void updateSendersBalanceSheet(TransferFunds transferFunds) {
 
 		if (transferFunds != null) {
-
-			synchronized (this) {
 				if (!(balanceSheet.isEmpty())) {
 					BigDecimal currentAmount = balanceSheet.get(BALANCE);
 					BigDecimal latestAmount = currentAmount.subtract(transferFunds.amount);
@@ -100,7 +95,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 				} else {
 					balanceSheet.put(BALANCE, new BigDecimal(0).subtract(transferFunds.amount));
 				}
-			}
 		}
 	}
 
@@ -109,7 +103,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 	 */
 	private void updateReceiversBalanceSheet(TransferFunds transferFunds) {
 		if (transferFunds != null) {
-			synchronized (this) {
 				if (!(balanceSheet.isEmpty())) {
 					BigDecimal currentAmount = balanceSheet.get(BALANCE);
 					BigDecimal latestAmount = currentAmount.add(transferFunds.amount);
@@ -117,7 +110,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 				} else {
 					balanceSheet.put(BALANCE, transferFunds.amount);
 				}
-			}
 		}
 	}
 
