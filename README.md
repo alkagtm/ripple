@@ -11,7 +11,7 @@ Client PostMan
 URL:-http:localhost:XXXX/trustline/send (POST)
 
 
-RequestObject Json
+RequestBody Json
  {
    "receiver":"XYZ",
     "sender":"ABC",
