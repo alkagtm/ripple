@@ -3,6 +3,7 @@ package com.ripple.trustline.service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,6 +40,8 @@ public class TrustLineServiceImpl implements TrustLineService {
 	private static Map<String, BigDecimal> balanceSheet = Collections
 			.synchronizedMap(new HashMap<String, BigDecimal>());
 	private static final String BALANCE = "balance";
+	
+	private final ReentrantLock lock = new ReentrantLock();
 
 	/*
 	 * @param TransferFunds 1) updates the BalanceSheet by subtracting form the
@@ -48,11 +51,8 @@ public class TrustLineServiceImpl implements TrustLineService {
 		try {
 
 			updateSendersBalanceSheet(transferFunds);
-
 			log.info("You sent " + transferFunds.amount);
 			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-		
-
 			int targetPort = (localport == reciever1port) ? reciever2port : reciever1port;
 			UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
 					.path("/trustline/receive").build();
@@ -75,7 +75,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 				updateReceiversBalanceSheet(transferFunds);
 				log.info("You were paid " + transferFunds.amount);
 				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -88,12 +87,17 @@ public class TrustLineServiceImpl implements TrustLineService {
 	private void updateSendersBalanceSheet(TransferFunds transferFunds) {
 
 		if (transferFunds != null) {
+			
 				if (!(balanceSheet.isEmpty())) {
+					lock.lock();
 					BigDecimal currentAmount = balanceSheet.get(BALANCE);
 					BigDecimal latestAmount = currentAmount.subtract(transferFunds.amount);
 					balanceSheet.put(BALANCE, latestAmount);
+					lock.unlock();
 				} else {
+					lock.lock();
 					balanceSheet.put(BALANCE, new BigDecimal(0).subtract(transferFunds.amount));
+					lock.unlock();
 				}
 		}
 	}
@@ -104,12 +108,16 @@ public class TrustLineServiceImpl implements TrustLineService {
 	private void updateReceiversBalanceSheet(TransferFunds transferFunds) {
 		if (transferFunds != null) {
 				if (!(balanceSheet.isEmpty())) {
+					lock.lock();
 					BigDecimal currentAmount = balanceSheet.get(BALANCE);
 					BigDecimal latestAmount = currentAmount.add(transferFunds.amount);
 					balanceSheet.put(BALANCE, latestAmount);
+					lock.unlock();
 				} else {
 					balanceSheet.put(BALANCE, transferFunds.amount);
 				}
+				
+				
 		}
 	}
 
