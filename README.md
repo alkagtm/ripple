@@ -8,7 +8,9 @@ TrustLine keep track of debt between two parties
 
 Client PostMan 
 
-URL:-http:loalhost:XXXX/trustline/send (POST)
+URL:-http:localhost:XXXX/trustline/send (POST)
+
+
 RequestObject Json
  {
    "receiver":"XYZ",
