@@ -3,9 +3,15 @@ TrustLineService application using Spring Boot
 
 # Features
 Built with Spring Boot
+
 TrustLine keep track of debt between two parties
+
 Client PostMan 
-Json
+
+URL:-http:localhost:XXXX/trustline/send (POST)
+
+
+RequestBody Json
  {
    "receiver":"XYZ",
     "sender":"ABC",
@@ -14,20 +20,26 @@ Json
 
 # Running the app from CommanLine
 Clone this repository:
-    $ git clone https://github.com/
+    $ git clone https://github.com/alkagtm/ripple.git
+    
+    
 Run "mvn clean package" to create the trustline-app-0.0.1-SNAPSHOT.jar.
 
-Open two Terminals
+
+Open two terminals
+
 In Each Terminal execute the following command
+
 In Terminal1 (Server1)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8080
      
-In Terminal1 (Server2)
+In Terminal2 (Server2)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8081
 
-Following message will be Displayed on Each Terminal
+Following message will be Displayed on Each Terminal 
 
 Welcome to the Trustline
+
 Trustline balance is: 0
 
 
