@@ -10,11 +10,7 @@ public class TrustLineAppApplication {
 		System.out.println("Welcome to the Trustline");
 		System.out.println("Trustline balance is: 0");
 		SpringApplication.run(TrustLineAppApplication.class, args);
-		
-		
+
 	}
-	
-	
 
 }
-
