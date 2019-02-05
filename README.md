@@ -31,7 +31,7 @@ Open two terminals
 In Each Terminal execute the following command
 
 In Terminal1 (Server1)
-     $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8080
+     $java -jar -Dlocal.server.port=8080 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8080
      
 In Terminal2 (Server2)
      $java -jar -Dlocal.server.port=8081 trustline-app-0.0.1-SNAPSHOT.jar --server.port=8081
