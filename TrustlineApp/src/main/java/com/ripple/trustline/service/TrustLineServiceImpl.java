@@ -56,30 +56,25 @@ public class TrustLineServiceImpl implements TrustLineService {
 	 * @param TransferFunds 1) Sends the Amount to the Receiver 2) if no exception
 	 * then update the Sender BalanceSheet by subtracting form the existing balance
 	 */
-	public void send(final TransferFunds transferFunds) throws Exception {
-		try {
-			int targetPort = (localport == reciever1port) ? reciever2port : reciever1port;
+	public boolean send(final TransferFunds transferFunds) throws Exception {
+		int targetPort = (localport == reciever1port) ? reciever2port : reciever1port;
 
-			URI uri = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
-					.path("/trustline/receive").build().toUri();
+		URI uri = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
+				.path("/trustline/receive").build().toUri();
 
-			RequestEntity<TransferFunds> request = RequestEntity.put(uri).contentType(MediaType.APPLICATION_JSON)
-					.body(transferFunds);
+		RequestEntity<TransferFunds> request = RequestEntity.put(uri).contentType(MediaType.APPLICATION_JSON)
+				.body(transferFunds);
 
-			RestTemplate restTemplate = new RestTemplate();
-			ResponseEntity<String> exchange = restTemplate.exchange(request, String.class);
-		
-			if (exchange.getStatusCode() == HttpStatus.OK) {
-				updateSendersBalanceSheet(transferFunds);
-				log.info("You sent " + transferFunds.amount);
-				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-			} else {
-				log.info("TransferService Failed");
-			}
+		RestTemplate restTemplate = new RestTemplate();
+		ResponseEntity<String> response = restTemplate.postForEntity(uri, transferFunds, String.class);
 
-		} catch (Exception ex) {
-			throw new Exception(ex.getMessage());
-		}
+		if (response.getStatusCode() == HttpStatus.OK) {
+			updateSendersBalanceSheet(transferFunds);
+			log.info("You sent " + transferFunds.amount);
+			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
+			return true;
+		} 
+		return false;
 	}
 
 	/*
@@ -87,16 +82,14 @@ public class TrustLineServiceImpl implements TrustLineService {
 	 * balance and return the response;
 	 * 
 	 */
-	public void receive(final TransferFunds transferFunds) throws Exception {
-		try {
-			if (transferFunds != null) {
-				updateReceiversBalanceSheet(transferFunds);
-				log.info("You were paid " + transferFunds.amount);
-				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
-			}
-		} catch (Exception ex) {
-			throw new Exception(ex.getMessage());
+	public boolean receive(final TransferFunds transferFunds) throws Exception {
+		if (transferFunds != null) {
+			updateReceiversBalanceSheet(transferFunds);
+			log.info("You were paid " + transferFunds.amount);
+			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
+			return true;
 		}
+		return false;
 	}
 
 	/*

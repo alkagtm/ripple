@@ -22,14 +22,24 @@ public class TrustLineController {
 
 	@PostMapping("/send")
 	public ResponseEntity<String> send(final @RequestBody TransferFunds transferFunds) throws Exception {
-		trustlineService.send(transferFunds);
-		return new ResponseEntity("Successfully Transferred",HttpStatus.OK);
+		boolean status = trustlineService.send(transferFunds);
+		if(status) {
+			return new ResponseEntity<String>("Successfully Transferred",HttpStatus.OK);
+		}else {
+			return new ResponseEntity<String>("Error while Sending",HttpStatus.BAD_REQUEST);
+		}
+		
 	}
 
 	@PostMapping("/receive")
 	public ResponseEntity<String> receive(final @RequestBody TransferFunds transferFunds) throws Exception {
-		trustlineService.receive(transferFunds);
-		return new ResponseEntity("Successfully Transferred",HttpStatus.OK);
+		boolean status = trustlineService.receive(transferFunds);
+		if(status) {
+			return new ResponseEntity<String>("Successfully Received",HttpStatus.OK);
+		}else {
+			return new ResponseEntity<String>("Error while  Receiving",HttpStatus.BAD_REQUEST);
+		}
+		
 		
 	}
 

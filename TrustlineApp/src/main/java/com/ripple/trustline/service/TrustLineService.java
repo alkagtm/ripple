@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 
 public interface TrustLineService {
 
-	public void send(final TransferFunds transferFunds) throws Exception ;
+	public boolean send(final TransferFunds transferFunds) throws Exception ;
 
-	public void receive(final TransferFunds transferFunds) throws Exception;
+	public boolean receive(final TransferFunds transferFunds) throws Exception;
 
 	public BigDecimal getBalance();
 
