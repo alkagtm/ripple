@@ -62,9 +62,6 @@ public class TrustLineServiceImpl implements TrustLineService {
 		URI uri = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
 				.path("/trustline/receive").build().toUri();
 
-		RequestEntity<TransferFunds> request = RequestEntity.put(uri).contentType(MediaType.APPLICATION_JSON)
-				.body(transferFunds);
-
 		RestTemplate restTemplate = new RestTemplate();
 		ResponseEntity<String> response = restTemplate.postForEntity(uri, transferFunds, String.class);
 
@@ -73,7 +70,7 @@ public class TrustLineServiceImpl implements TrustLineService {
 			log.info("You sent " + transferFunds.amount);
 			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
 			return true;
-		} 
+		}
 		return false;
 	}
 
@@ -83,6 +80,7 @@ public class TrustLineServiceImpl implements TrustLineService {
 	 * 
 	 */
 	public boolean receive(final TransferFunds transferFunds) throws Exception {
+		
 		if (transferFunds != null) {
 			updateReceiversBalanceSheet(transferFunds);
 			log.info("You were paid " + transferFunds.amount);
