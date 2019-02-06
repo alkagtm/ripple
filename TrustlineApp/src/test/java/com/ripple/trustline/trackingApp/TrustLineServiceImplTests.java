@@ -29,7 +29,7 @@ public class TrustLineServiceImplTests {
     // write test cases here
     
 	@Test
-    public void send_thenValueShouldbeDebited() {
+    public void send_thenValueShouldbeDebited() throws Exception {
     	
     	when(trustlineService.getBalance()).thenReturn(new BigDecimal(-20));
     	TransferFunds funds = new TransferFunds();
@@ -41,7 +41,7 @@ public class TrustLineServiceImplTests {
      }
     
     @Test
-    public void receiver_thenValueShouldbeCredited() {
+    public void receiver_thenValueShouldbeCredited()throws Exception {
     	
     	when(trustlineService.getBalance()).thenReturn(new BigDecimal(+20));
     	TransferFunds funds = new TransferFunds();

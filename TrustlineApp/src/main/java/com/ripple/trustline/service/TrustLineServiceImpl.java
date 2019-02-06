@@ -9,12 +9,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.ripple.trustline.data.TransferFunds;
 import java.math.BigDecimal;
+import java.net.URI;
 
 /**
  * @author alkagautam
@@ -37,39 +41,53 @@ public class TrustLineServiceImpl implements TrustLineService {
 	@Value("${host}")
 	private String host;
 
-	private static Map<String, BigDecimal> balanceSheet = Collections
-			.synchronizedMap(new HashMap<String, BigDecimal>());
+	private static Map<String, BigDecimal> balanceSheet;
+
 	private static final String BALANCE = "balance";
-	
+
 	private final ReentrantLock lock = new ReentrantLock();
 
-	/*
-	 * @param TransferFunds 1) updates the BalanceSheet by subtracting form the
-	 * existing balance 2) Sends the Amount to the Receiver
-	 */
-	public void send(TransferFunds transferFunds) {
-		try {
+	public TrustLineServiceImpl() {
+		balanceSheet = Collections.synchronizedMap(new HashMap<String, BigDecimal>());
+		balanceSheet.put(BALANCE, new BigDecimal(0));
+	}
 
-			updateSendersBalanceSheet(transferFunds);
-			log.info("You sent " + transferFunds.amount);
-			log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
+	/*
+	 * @param TransferFunds 1) Sends the Amount to the Receiver 2) if no exception
+	 * then update the Sender BalanceSheet by subtracting form the existing balance
+	 */
+	public void send(final TransferFunds transferFunds) throws Exception {
+		try {
 			int targetPort = (localport == reciever1port) ? reciever2port : reciever1port;
-			UriComponents uriComponents = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
-					.path("/trustline/receive").build();
+
+			URI uri = UriComponentsBuilder.newInstance().scheme("http").host(host).port(targetPort)
+					.path("/trustline/receive").build().toUri();
+
+			RequestEntity<TransferFunds> request = RequestEntity.put(uri).contentType(MediaType.APPLICATION_JSON)
+					.body(transferFunds);
+
 			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.postForObject(uriComponents.toUriString(), transferFunds, TransferFunds.class);
+			ResponseEntity<String> exchange = restTemplate.exchange(request, String.class);
+		
+			if (exchange.getStatusCode() == HttpStatus.OK) {
+				updateSendersBalanceSheet(transferFunds);
+				log.info("You sent " + transferFunds.amount);
+				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
+			} else {
+				log.info("TransferService Failed");
+			}
 
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new Exception(ex.getMessage());
 		}
 	}
 
 	/*
 	 * @param TransferFunds 1) updates the BalanceSheet by adding to the existing
-	 * balance
+	 * balance and return the response;
 	 * 
 	 */
-	public void receive(TransferFunds transferFunds) {
+	public void receive(final TransferFunds transferFunds) throws Exception {
 		try {
 			if (transferFunds != null) {
 				updateReceiversBalanceSheet(transferFunds);
@@ -77,47 +95,34 @@ public class TrustLineServiceImpl implements TrustLineService {
 				log.info("Trustline balance is: " + balanceSheet.get(BALANCE));
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new Exception(ex.getMessage());
 		}
 	}
 
 	/*
 	 * updatingSenderBalmceSheet
 	 */
-	private void updateSendersBalanceSheet(TransferFunds transferFunds) {
+	private void updateSendersBalanceSheet(final TransferFunds transferFunds) {
 
 		if (transferFunds != null) {
-			
-				if (!(balanceSheet.isEmpty())) {
-					lock.lock();
-					BigDecimal currentAmount = balanceSheet.get(BALANCE);
-					BigDecimal latestAmount = currentAmount.subtract(transferFunds.amount);
-					balanceSheet.put(BALANCE, latestAmount);
-					lock.unlock();
-				} else {
-					lock.lock();
-					balanceSheet.put(BALANCE, new BigDecimal(0).subtract(transferFunds.amount));
-					lock.unlock();
-				}
+			lock.lock();
+			BigDecimal currentAmount = balanceSheet.get(BALANCE);
+			BigDecimal latestAmount = currentAmount.subtract(transferFunds.amount);
+			balanceSheet.put(BALANCE, latestAmount);
+			lock.unlock();
 		}
 	}
 
 	/*
 	 * updatingReceiverBalmceSheet
 	 */
-	private void updateReceiversBalanceSheet(TransferFunds transferFunds) {
+	private void updateReceiversBalanceSheet(final TransferFunds transferFunds) {
 		if (transferFunds != null) {
-				if (!(balanceSheet.isEmpty())) {
-					lock.lock();
-					BigDecimal currentAmount = balanceSheet.get(BALANCE);
-					BigDecimal latestAmount = currentAmount.add(transferFunds.amount);
-					balanceSheet.put(BALANCE, latestAmount);
-					lock.unlock();
-				} else {
-					balanceSheet.put(BALANCE, transferFunds.amount);
-				}
-				
-				
+			lock.lock();
+			BigDecimal currentAmount = balanceSheet.get(BALANCE);
+			BigDecimal latestAmount = currentAmount.add(transferFunds.amount);
+			balanceSheet.put(BALANCE, latestAmount);
+			lock.unlock();
 		}
 	}
 
