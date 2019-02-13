@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ripple.trustline.data.TransferErroResponse;
+import com.ripple.trustline.data.TransferErrorResponse;
 import com.ripple.trustline.data.TransferFunds;
 import com.ripple.trustline.service.TrustLineService;
 

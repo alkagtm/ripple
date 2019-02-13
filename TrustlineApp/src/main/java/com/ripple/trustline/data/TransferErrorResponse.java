@@ -1,6 +1,6 @@
 package com.ripple.trustline.data;
 
-public class TransferErroResponse {
+public class TransferErrorResponse {
 	
 	private int errorCode;
     private String message;
